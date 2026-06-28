@@ -72,8 +72,7 @@
                 
                 <!-- Форма входа -->
                 <div id="login-panel" class="auth-panel active" role="tabpanel" aria-labelledby="tab-login">
-                    <h2 class="panel-title">Добро пожаловать!</h2>
-                    <p class="panel-subtitle">Войдите в свой аккаунт</p>
+                    <h2 class="panel-title">Авторизация</h2>
                     
                     <form id="login-form" action="/auth" method="POST" novalidate>
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() if csrf_token else '' }}">
