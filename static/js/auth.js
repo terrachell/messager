@@ -34,7 +34,9 @@
             errorText.textContent = msg;
             errorEl.style.display = 'flex';
             clearTimeout(window._errTimeout);
-            window._errTimeout = setTimeout(function() { errorEl.style.display = 'none'; }, 5000);
+            window._errTimeout = setTimeout(function() {
+                errorEl.style.display = 'none';
+            }, 5000);
         } else {
             errorEl.style.display = 'none';
         }
@@ -172,41 +174,35 @@
         return valid;
     }
 
-    // Отправка
-    async function handleSubmit(e) {
+    // ============================================================
+    // ОТПРАВКА ФОРМЫ — ИСПРАВЛЕНА
+    // ============================================================
+    function handleSubmit(e) {
         e.preventDefault();
         var form = e.target;
         var btn = form.querySelector('.submit-btn');
-        if (!btn.dataset.orig) btn.dataset.orig = btn.querySelector('.btn-text').textContent;
+        if (!btn.dataset.orig) {
+            btn.dataset.orig = btn.querySelector('.btn-text').textContent;
+        }
 
+        // Валидация
         if (!validateForm(form)) {
             var err = form.querySelector('.input-wrapper.error');
-            if (err) { err.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                var inp = err.querySelector('input'); if (inp) inp.focus(); }
+            if (err) {
+                err.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                var inp = err.querySelector('input');
+                if (inp) inp.focus();
+            }
             return;
         }
 
+        // Показываем загрузку
         setLoading(btn, true);
         showError(null);
 
-        try {
-            var fd = new FormData(form);
-            var res = await fetch(form.action, {
-                method: form.method,
-                body: fd,
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            });
-            var data = await res.json();
-            if (res.ok && data.success) {
-                window.location.href = data.redirect || '/main_page';
-            } else {
-                showError(data.error || 'Ошибка. Попробуйте снова.');
-                setLoading(btn, false);
-            }
-        } catch (err) {
-            showError('Ошибка соединения с сервером.');
-            setLoading(btn, false);
-        }
+        // Отправляем форму стандартным способом (без fetch)
+        // Это решит проблему с редиректом
+        form.submit();
     }
 
     // ---------- События ----------
@@ -234,7 +230,9 @@
 
     // Ввод
     document.querySelectorAll('.input-wrapper input').forEach(function(inp) {
-        inp.addEventListener('blur', function() { if (this.value.trim()) validateField(this); });
+        inp.addEventListener('blur', function() {
+            if (this.value.trim()) validateField(this);
+        });
 
         inp.addEventListener('input', function() {
             if (this.id === 'register-password') {
@@ -254,7 +252,10 @@
         inp.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 var f = this.closest('form');
-                if (f) { e.preventDefault(); f.dispatchEvent(new Event('submit')); }
+                if (f) {
+                    e.preventDefault();
+                    f.dispatchEvent(new Event('submit'));
+                }
             }
         });
     });
