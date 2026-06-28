@@ -1,6 +1,6 @@
 /* ============================================
    AUTH.CSS — Оптимизированная версия
-   Версия: 3.2.0 (SVG иконки вместо эмодзи)
+   Версия: 3.3.0 (PNG иконки + фикс автозаполнения)
    ============================================ */
 
 *,
@@ -232,6 +232,7 @@ body {
     margin-bottom: 5px;
 }
 
+/* ===== ОБЕРТКА ПОЛЯ ВВОДА - НЕ МЕНЯЕТ ФОН ===== */
 .input-wrapper {
     position: relative;
     display: flex;
@@ -239,11 +240,11 @@ body {
     background: var(--bg-input);
     border-radius: var(--radius-sm);
     border: 2px solid var(--border-color);
+    transition: border-color 0.2s;
 }
 
 .input-wrapper:focus-within {
     border-color: var(--border-focus);
-    background: white;
     box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.1);
 }
 
@@ -259,47 +260,64 @@ body {
     border-color: var(--success);
 }
 
-/* ---------- SVG иконки ---------- */
+/* ===== PNG ИКОНКИ ===== */
 .input-icon {
-    padding: 0 0 0 14px;
+    padding: 0 0 0 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--text-light);
-    user-select: none;
     flex-shrink: 0;
 }
 
-.input-icon svg {
+.input-icon-img {
     width: 18px;
     height: 18px;
-    stroke: currentColor;
-    fill: none;
+    display: block;
+    opacity: 0.5;
+    object-fit: contain;
 }
 
-/* ===== Глаз (PNG иконка) ===== */
+/* ===== ГЛАЗ (PNG) ===== */
 .eye-icon {
-    width: 20px;
-    height: 20px;
-    display: block;
-    opacity: 0.6;
-    transition: opacity 0.2s;
+    width: 20px !important;
+    height: 20px !important;
+    display: block !important;
+    opacity: 0.5;
     object-fit: contain;
+    flex-shrink: 0;
+}
+
+.toggle-password {
+    padding: 0 12px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    height: 44px;
+    width: 44px;
 }
 
 .toggle-password:hover .eye-icon {
     opacity: 1;
 }
 
-/* ---------- Поля ввода ---------- */
+.toggle-password:focus-visible {
+    outline: 2px solid var(--primary);
+    border-radius: var(--radius-xs);
+}
+
+/* ===== ПОЛЯ ВВОДА - ФИКСИРОВАННЫЙ ФОН ===== */
 .input-wrapper input {
     flex: 1;
     padding: 12px 14px;
     border: none;
-    background-color: #f8f9fa !important;
+    background: transparent !important;
     font-size: 15px;
-    color: #1a1a2e !important;
-    -webkit-text-fill-color: #1a1a2e !important;
+    color: var(--text-primary) !important;
+    -webkit-text-fill-color: var(--text-primary) !important;
     outline: none;
     font-family: inherit;
     min-width: 0;
@@ -310,47 +328,21 @@ body {
     -webkit-text-fill-color: var(--text-light);
 }
 
-.input-wrapper input:focus {
-    background-color: #ffffff !important;
-    color: #1a1a2e !important;
-    -webkit-text-fill-color: #1a1a2e !important;
-}
-
-/* ===== ОТКЛЮЧЕНИЕ АВТОЗАПОЛНЕНИЯ ===== */
+/* ===== ПОЛНОЕ ОТКЛЮЧЕНИЕ АВТОЗАПОЛНЕНИЯ ===== */
 .input-wrapper input:-webkit-autofill,
 .input-wrapper input:-webkit-autofill:hover,
 .input-wrapper input:-webkit-autofill:focus,
 .input-wrapper input:-webkit-autofill:active {
-    -webkit-box-shadow: 0 0 0 1000px #f8f9fa inset !important;
-    -webkit-text-fill-color: #1a1a2e !important;
-    -webkit-background-clip: text !important;
-    background-clip: text !important;
-    caret-color: #1a1a2e !important;
-    background-color: #f8f9fa !important;
-    color: #1a1a2e !important;
+    -webkit-box-shadow: 0 0 0 1000px var(--bg-input) inset !important;
+    -webkit-text-fill-color: var(--text-primary) !important;
+    caret-color: var(--text-primary) !important;
+    background-color: transparent !important;
+    color: var(--text-primary) !important;
 }
 
 .input-wrapper input:-moz-autofill {
-    background-color: #f8f9fa !important;
-    color: #1a1a2e !important;
-}
-
-/* ---------- Кнопка показа пароля ---------- */
-.toggle-password {
-    padding: 0 14px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    line-height: 1;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.toggle-password:focus-visible {
-    outline: 2px solid var(--primary);
-    border-radius: var(--radius-xs);
+    background-color: transparent !important;
+    color: var(--text-primary) !important;
 }
 
 /* ---------- Подсказки ---------- */
@@ -608,39 +600,15 @@ body {
         background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
     }
     
-    .input-wrapper input {
-        background-color: #374151 !important;
-        color: #f9fafb !important;
-        -webkit-text-fill-color: #f9fafb !important;
-    }
-    
-    .input-wrapper input:focus {
-        background-color: #4a5568 !important;
-        color: #f9fafb !important;
-        -webkit-text-fill-color: #f9fafb !important;
-    }
-    
-    .input-wrapper input:-webkit-autofill,
-    .input-wrapper input:-webkit-autofill:hover,
-    .input-wrapper input:-webkit-autofill:focus,
-    .input-wrapper input:-webkit-autofill:active {
-        -webkit-box-shadow: 0 0 0 1000px #374151 inset !important;
-        -webkit-text-fill-color: #f9fafb !important;
-        -webkit-background-clip: text !important;
-        background-clip: text !important;
-        caret-color: #f9fafb !important;
-        background-color: #374151 !important;
-        color: #f9fafb !important;
-    }
-    
-    .input-wrapper input:-moz-autofill {
-        background-color: #374151 !important;
-        color: #f9fafb !important;
+    /* Иконки в темной теме */
+    .input-icon-img {
+        filter: brightness(0) invert(1);
+        opacity: 0.6;
     }
     
     .eye-icon {
         filter: brightness(0) invert(1);
-        opacity: 0.5;
+        opacity: 0.6;
     }
     
     .toggle-password:hover .eye-icon {
@@ -716,9 +684,9 @@ body {
     }
     
     .input-icon { padding: 0 0 0 10px; }
-    .input-icon svg { width: 16px; height: 16px; }
-    .eye-icon { width: 18px; height: 18px; }
-    .toggle-password { padding: 0 10px; }
+    .input-icon-img { width: 16px; height: 16px; }
+    .eye-icon { width: 18px !important; height: 18px !important; }
+    .toggle-password { padding: 0 10px; height: 40px; width: 40px; }
     .submit-btn { padding: 12px 20px; font-size: 15px; }
     
     .form-options {

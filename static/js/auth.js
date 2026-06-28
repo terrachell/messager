@@ -1,62 +1,49 @@
 /**
  * AUTH.JS — Клиентская логика для страницы аутентификации
- * Версия: 2.1.0 (PNG иконка глаза)
+ * Версия: 2.2.0 (PNG иконки)
  */
 
 (function() {
     'use strict';
 
     // ---------- DOM элементы ----------
-    const tabs = document.querySelectorAll('.tab-btn');
-    const panels = {
+    var tabs = document.querySelectorAll('.tab-btn');
+    var panels = {
         login: document.getElementById('login-panel'),
         register: document.getElementById('register-panel')
     };
-    const loginForm = document.getElementById('login-form');
-    const registerForm = document.getElementById('register-form');
-    const errorContainer = document.getElementById('auth-error');
-    const errorText = errorContainer?.querySelector('.error-text');
+    var loginForm = document.getElementById('login-form');
+    var registerForm = document.getElementById('register-form');
+    var errorContainer = document.getElementById('auth-error');
+    var errorText = errorContainer ? errorContainer.querySelector('.error-text') : null;
     
-    const loginSubmit = document.getElementById('login-submit');
-    const registerSubmit = document.getElementById('register-submit');
+    var togglePasswordBtns = document.querySelectorAll('.toggle-password');
+    var switchBtns = document.querySelectorAll('.switch-btn');
     
-    const togglePasswordBtns = document.querySelectorAll('.toggle-password');
+    var loginUsername = document.getElementById('login-username');
+    var loginPassword = document.getElementById('login-password');
+    var registerUsername = document.getElementById('register-username');
+    var registerPassword = document.getElementById('register-password');
+    var registerConfirm = document.getElementById('register-confirm');
+    var termsCheck = document.getElementById('terms-check');
     
-    const switchBtns = document.querySelectorAll('.switch-btn');
+    var loginHint = document.getElementById('login-hint');
+    var loginPasswordHint = document.getElementById('login-password-hint');
+    var registerUsernameHint = document.getElementById('register-username-hint');
+    var registerPasswordHint = document.getElementById('register-password-hint');
+    var confirmHint = document.getElementById('confirm-hint');
     
-    // Поля входа
-    const loginUsername = document.getElementById('login-username');
-    const loginPassword = document.getElementById('login-password');
-    
-    // Поля регистрации
-    const registerUsername = document.getElementById('register-username');
-    const registerPassword = document.getElementById('register-password');
-    const registerConfirm = document.getElementById('register-confirm');
-    const termsCheck = document.getElementById('terms-check');
-    
-    // Подсказки
-    const loginHint = document.getElementById('login-hint');
-    const loginPasswordHint = document.getElementById('login-password-hint');
-    const registerUsernameHint = document.getElementById('register-username-hint');
-    const registerPasswordHint = document.getElementById('register-password-hint');
-    const confirmHint = document.getElementById('confirm-hint');
-    
-    // Индикатор сложности пароля
-    const strengthBars = [
+    var strengthBars = [
         document.getElementById('strength-1'),
         document.getElementById('strength-2'),
         document.getElementById('strength-3')
     ];
 
-    // ---------- Состояние ----------
-    let currentTab = 'login';
-    let isSubmitting = false;
+    var currentTab = 'login';
+    var isSubmitting = false;
 
     // ---------- Функции ----------
 
-    /**
-     * Показать/скрыть ошибку
-     */
     function showError(message) {
         if (!errorContainer) return;
         if (message) {
@@ -71,9 +58,6 @@
         }
     }
 
-    /**
-     * Переключить вкладку
-     */
     function switchTab(tabName) {
         if (tabName === currentTab) return;
         currentTab = tabName;
@@ -92,9 +76,7 @@
         
         var firstInput = panels[tabName].querySelector('input:not([type="hidden"])');
         if (firstInput) {
-            setTimeout(function() {
-                firstInput.focus();
-            }, 100);
+            setTimeout(function() { firstInput.focus(); }, 100);
         }
         
         if (tabName === 'register') {
@@ -102,9 +84,6 @@
         }
     }
 
-    /**
-     * Показать индикатор загрузки
-     */
     function setLoading(button, loading) {
         var textSpan = button.querySelector('.btn-text');
         var loaderSpan = button.querySelector('.btn-loader');
@@ -120,11 +99,7 @@
         }
     }
 
-    /**
-     * Валидация поля
-     */
-    function validateField(input, options) {
-        options = options || {};
+    function validateField(input) {
         var wrapper = input.closest('.input-wrapper');
         var hint = wrapper ? wrapper.parentElement.querySelector('.form-hint:not(.password-match-hint)') : null;
         
@@ -143,34 +118,23 @@
             required: input.required || false
         };
         
-        if (!rules.required && !value) {
-            return true;
-        }
+        if (!rules.required && !value) return true;
         
         if (rules.required && !value) {
             wrapper.classList.add('error');
-            if (hint) {
-                hint.textContent = 'Это поле обязательно';
-                hint.classList.add('error');
-            }
+            if (hint) { hint.textContent = 'Это поле обязательно'; hint.classList.add('error'); }
             return false;
         }
         
         if (value && rules.minLength > 0 && value.length < rules.minLength) {
             wrapper.classList.add('error');
-            if (hint) {
-                hint.textContent = 'Минимум ' + rules.minLength + ' символов';
-                hint.classList.add('error');
-            }
+            if (hint) { hint.textContent = 'Минимум ' + rules.minLength + ' символов'; hint.classList.add('error'); }
             return false;
         }
         
         if (value && rules.maxLength < Infinity && value.length > rules.maxLength) {
             wrapper.classList.add('error');
-            if (hint) {
-                hint.textContent = 'Максимум ' + rules.maxLength + ' символов';
-                hint.classList.add('error');
-            }
+            if (hint) { hint.textContent = 'Максимум ' + rules.maxLength + ' символов'; hint.classList.add('error'); }
             return false;
         }
         
@@ -179,15 +143,10 @@
                 var regex = new RegExp(rules.pattern);
                 if (!regex.test(value)) {
                     wrapper.classList.add('error');
-                    if (hint) {
-                        hint.textContent = 'Недопустимые символы';
-                        hint.classList.add('error');
-                    }
+                    if (hint) { hint.textContent = 'Недопустимые символы'; hint.classList.add('error'); }
                     return false;
                 }
-            } catch (e) {
-                // Если паттерн невалидный, пропускаем
-            }
+            } catch (e) {}
         }
         
         if (value) {
@@ -206,9 +165,6 @@
         return true;
     }
 
-    /**
-     * Проверка совпадения паролей
-     */
     function checkPasswordMatch() {
         var password = registerPassword.value;
         var confirm = registerConfirm.value;
@@ -238,29 +194,19 @@
         }
     }
 
-    /**
-     * Оценка сложности пароля
-     */
     function checkPasswordStrength(password) {
         var score = 0;
-        
         if (password.length === 0) return 0;
-        
         if (password.length >= 6) score++;
         if (password.length >= 10) score++;
-        
         if (/[a-z]/.test(password) && /[A-Z]/.test(password)) score++;
         if (/\d/.test(password)) score++;
         if (/[^A-Za-z0-9]/.test(password)) score++;
-        
         if (score <= 2) return 1;
         if (score <= 3) return 2;
         return 3;
     }
 
-    /**
-     * Обновление индикатора сложности пароля
-     */
     function updatePasswordStrength(password) {
         var strength = checkPasswordStrength(password);
         
@@ -273,12 +219,7 @@
             }
         });
         
-        var hints = {
-            0: 'Введите пароль',
-            1: 'Слабый пароль',
-            2: 'Средний пароль',
-            3: 'Сильный пароль'
-        };
+        var hints = { 0: 'Введите пароль', 1: 'Слабый пароль', 2: 'Средний пароль', 3: 'Сильный пароль' };
         
         if (password.length > 0) {
             registerPasswordHint.textContent = hints[strength] || hints[0];
@@ -292,35 +233,23 @@
         }
     }
 
-    /**
-     * Сброс индикатора сложности пароля
-     */
     function resetPasswordStrength() {
-        strengthBars.forEach(function(bar) {
-            bar.className = 'bar';
-        });
+        strengthBars.forEach(function(bar) { bar.className = 'bar'; });
         registerPasswordHint.textContent = 'Минимум 6 символов';
         registerPasswordHint.className = 'form-hint';
     }
 
-    /**
-     * Валидация всей формы
-     */
     function validateForm(form) {
         var isValid = true;
         var inputs = form.querySelectorAll('input:not([type="hidden"])');
         
         inputs.forEach(function(input) {
             if (input.id === 'register-confirm') return;
-            
-            var isInputValid = validateField(input);
-            if (!isInputValid) isValid = false;
+            if (!validateField(input)) isValid = false;
         });
         
         if (form.id === 'register-form') {
-            var passwordsMatch = checkPasswordMatch();
-            if (!passwordsMatch) isValid = false;
-            
+            if (!checkPasswordMatch()) isValid = false;
             if (termsCheck && !termsCheck.checked) {
                 isValid = false;
                 var label = termsCheck.closest('.checkbox-label');
@@ -334,9 +263,6 @@
         return isValid;
     }
 
-    /**
-     * Обработка отправки формы
-     */
     async function handleSubmit(e) {
         e.preventDefault();
         var form = e.target;
@@ -364,9 +290,7 @@
             var response = await fetch(form.action, {
                 method: form.method,
                 body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
             });
             
             var result = await response.json();
@@ -385,21 +309,19 @@
 
     // ---------- Обработчики событий ----------
 
-    // Переключение вкладок
     tabs.forEach(function(tab) {
         tab.addEventListener('click', function() {
             switchTab(this.dataset.tab);
         });
     });
 
-    // Кнопки переключения
     switchBtns.forEach(function(btn) {
         btn.addEventListener('click', function() {
             switchTab(this.dataset.switchTo);
         });
     });
 
-    // Показать/скрыть пароль (PNG иконка)
+    // ===== ПОКАЗ/СКРЫТИЕ ПАРОЛЯ (PNG ГЛАЗ) =====
     togglePasswordBtns.forEach(function(btn) {
         btn.addEventListener('click', function() {
             var input = this.closest('.input-wrapper').querySelector('input');
@@ -408,27 +330,20 @@
             if (input && img) {
                 var isPassword = input.type === 'password';
                 input.type = isPassword ? 'text' : 'password';
-                
-                // Меняем opacity для визуальной обратной связи
                 img.style.opacity = isPassword ? '1' : '0.4';
             }
         });
     });
 
-    // Валидация на ввод
     document.querySelectorAll('.input-wrapper input').forEach(function(input) {
         input.addEventListener('blur', function() {
-            if (this.value.trim()) {
-                validateField(this);
-            }
+            if (this.value.trim()) validateField(this);
         });
         
         input.addEventListener('input', function() {
             if (this.id === 'register-password') {
                 updatePasswordStrength(this.value);
-                if (registerConfirm.value) {
-                    checkPasswordMatch();
-                }
+                if (registerConfirm.value) checkPasswordMatch();
                 validateField(this);
             } else if (this.id === 'register-confirm') {
                 checkPasswordMatch();
@@ -439,10 +354,7 @@
                 if (wrapper && wrapper.classList.contains('error')) {
                     wrapper.classList.remove('error');
                     var hint = wrapper.parentElement.querySelector('.form-hint');
-                    if (hint) {
-                        hint.textContent = '';
-                        hint.classList.remove('error');
-                    }
+                    if (hint) { hint.textContent = ''; hint.classList.remove('error'); }
                 }
             }
         });
@@ -458,123 +370,31 @@
         });
     });
 
-    // Чекбокс условий
     if (termsCheck) {
         termsCheck.addEventListener('change', function() {
             var label = this.closest('.checkbox-label');
-            if (this.checked) {
-                if (label) label.classList.remove('error');
-            }
+            if (this.checked && label) label.classList.remove('error');
         });
     }
 
-    // Отправка форм
     if (loginForm) loginForm.addEventListener('submit', handleSubmit);
     if (registerForm) registerForm.addEventListener('submit', handleSubmit);
 
     // ---------- Инициализация ----------
 
-    // Установка вкладки из URL
     var urlParams = new URLSearchParams(window.location.search);
     var tabParam = urlParams.get('tab');
     if (tabParam && (tabParam === 'login' || tabParam === 'register')) {
         switchTab(tabParam);
     }
 
-    // Фокус на первое поле
     setTimeout(function() {
         var firstInput = document.querySelector('.auth-panel.active input:not([type="hidden"])');
         if (firstInput) firstInput.focus();
     }, 200);
 
-    // Flash-сообщения
     var flashMessage = document.querySelector('[data-flash]');
-    if (flashMessage) {
-        showError(flashMessage.dataset.flash);
-    }
-
-    // ============================================================
-    // ФИКС ПРОБЛЕМЫ С БЕЛЫМ ПОЛЕМ ВВОДА (автозаполнение)
-    // ============================================================
-
-    function fixInputStyle(input) {
-        if (!input) return;
-        
-        var isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        
-        input.style.backgroundColor = isDark ? '#374151' : '#f8f9fa';
-        input.style.color = isDark ? '#f9fafb' : '#1a1a2e';
-        input.style.webkitTextFillColor = isDark ? '#f9fafb' : '#1a1a2e';
-    }
-    
-    function handleInputField(input) {
-        // При вводе
-        input.addEventListener('input', function() {
-            var isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-            this.style.color = isDark ? '#f9fafb' : '#1a1a2e';
-            this.style.webkitTextFillColor = isDark ? '#f9fafb' : '#1a1a2e';
-            
-            if (this.value === '') {
-                this.style.backgroundColor = isDark ? '#374151' : '#f8f9fa';
-            }
-        });
-        
-        // При фокусе
-        input.addEventListener('focus', function() {
-            var isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-            this.style.backgroundColor = isDark ? '#4a5568' : '#ffffff';
-            this.style.color = isDark ? '#f9fafb' : '#1a1a2e';
-            this.style.webkitTextFillColor = isDark ? '#f9fafb' : '#1a1a2e';
-        });
-        
-        // При потере фокуса
-        input.addEventListener('blur', function() {
-            fixInputStyle(this);
-        });
-        
-        // При загрузке
-        setTimeout(function() {
-            fixInputStyle(input);
-        }, 100);
-        
-        // Проверка каждые 500 мс (для автозаполнения)
-        setInterval(function() {
-            if (document.activeElement !== input && input.value !== '') {
-                fixInputStyle(input);
-            }
-        }, 500);
-    }
-    
-    // Применяем ко всем полям ввода
-    document.addEventListener('DOMContentLoaded', function() {
-        var inputs = document.querySelectorAll('.input-wrapper input');
-        inputs.forEach(function(input) {
-            handleInputField(input);
-        });
-        
-        // Наблюдатель за изменениями в DOM
-        var observer = new MutationObserver(function() {
-            var newInputs = document.querySelectorAll('.input-wrapper input:not([data-fixed])');
-            newInputs.forEach(function(input) {
-                input.setAttribute('data-fixed', 'true');
-                handleInputField(input);
-            });
-        });
-        
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true
-        });
-    });
-    
-    // Отслеживание изменения темы
-    var darkModeMedia = window.matchMedia('(prefers-color-scheme: dark)');
-    darkModeMedia.addEventListener('change', function() {
-        var inputs = document.querySelectorAll('.input-wrapper input');
-        inputs.forEach(function(input) {
-            fixInputStyle(input);
-        });
-    });
+    if (flashMessage) showError(flashMessage.dataset.flash);
 
     console.log('Auth page initialized');
 
