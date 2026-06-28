@@ -3,50 +3,265 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/static/styles/index.html">
-    <title>Добро пожаловать!</title>
+    <meta name="description" content="Вход и регистрация в мессенджере Chars">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    
+    <title>Вход | Chars Мессенджер</title>
+    
+    <link rel="stylesheet" href="/static/styles/auth.css">
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💬</text></svg>">
 </head>
 <body>
-    <div class="container">
-        <div class="tabs">
-            <div class="tab active" data-tab="login">Вход</div>
-            <div class="tab" data-tab="register">Регистрация</div>
+    <div class="auth-container">
+        <!-- Левая панель с брендингом -->
+        <div class="auth-brand">
+            <div class="brand-content">
+                <div class="brand-icon">💬</div>
+                <h1 class="brand-title">Chars</h1>
+                <p class="brand-subtitle">Локальный мессенджер</p>
+                <p class="brand-description">Общайтесь в реальном времени<br>без лишних сложностей</p>
+                
+                <div class="brand-features">
+                    <div class="feature">
+                        <span class="feature-icon">⚡</span>
+                        <span>Мгновенные сообщения</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">🔒</span>
+                        <span>Приватные чаты</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">💾</span>
+                        <span>История сообщений</span>
+                    </div>
+                </div>
+            </div>
         </div>
         
-        <div id="login-form" class="form active">
-            <h2>Вход в мессенджер</h2>
-            <form action="/auth" method="POST">
-                <input type="text" name="login" placeholder="Логин" required>
-                <input type="password" name="password" placeholder="Пароль" required>
-                <button type="submit">Войти</button>
-            </form>
-        </div>
-        
-        <div id="register-form" class="form">
-            <h2>Регистрация</h2>
-            <form action="/registration" method="POST">
-                <input type="text" name="login" placeholder="Логин" required>
-                <input type="password" name="password" placeholder="Пароль" required>
-                <button type="submit">Зарегистрироваться</button>
-            </form>
+        <!-- Правая панель с формами -->
+        <div class="auth-form-panel">
+            <div class="form-wrapper">
+                <!-- Переключатель вкладок -->
+                <div class="auth-tabs" role="tablist">
+                    <button class="tab-btn active" 
+                            role="tab" 
+                            aria-selected="true" 
+                            aria-controls="login-panel"
+                            id="tab-login"
+                            data-tab="login">
+                        Вход
+                    </button>
+                    <button class="tab-btn" 
+                            role="tab" 
+                            aria-selected="false" 
+                            aria-controls="register-panel"
+                            id="tab-register"
+                            data-tab="register">
+                        Регистрация
+                    </button>
+                </div>
+                
+                <!-- Индикатор ошибок -->
+                <div id="auth-error" class="auth-error" style="display: none;">
+                    <span class="error-icon">⚠️</span>
+                    <span class="error-text"></span>
+                </div>
+                
+                <!-- Форма входа -->
+                <div id="login-panel" class="auth-panel active" role="tabpanel" aria-labelledby="tab-login">
+                    <h2 class="panel-title">Добро пожаловать!</h2>
+                    <p class="panel-subtitle">Войдите в свой аккаунт</p>
+                    
+                    <form id="login-form" action="/auth" method="POST" novalidate>
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() if csrf_token else '' }}">
+                        
+                        <div class="form-group">
+                            <label for="login-username">Логин</label>
+                            <div class="input-wrapper">
+                                <span class="input-icon">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                        <circle cx="12" cy="7" r="4"/>
+                                    </svg>
+                                </span>
+                                <input type="text" 
+                                       id="login-username" 
+                                       name="login" 
+                                       placeholder="Введите логин" 
+                                       required 
+                                       minlength="3" 
+                                       maxlength="16"
+                                       autocomplete="username"
+                                       autofocus>
+                            </div>
+                            <span class="form-hint" id="login-hint"></span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="login-password">Пароль</label>
+                            <div class="input-wrapper">
+                                <span class="input-icon">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                    </svg>
+                                </span>
+                                <input type="password" 
+                                       id="login-password" 
+                                       name="password" 
+                                       placeholder="Введите пароль" 
+                                       required 
+                                       minlength="6"
+                                       autocomplete="current-password">
+                                <button type="button" class="toggle-password" aria-label="Показать пароль">
+                                    <img src="/static/img/eye.png" alt="Показать пароль" class="eye-icon">
+                                </button>
+                            </div>
+                            <span class="form-hint" id="login-password-hint"></span>
+                        </div>
+                        
+                        <div class="form-options">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="remember" id="remember-me">
+                                <span class="checkmark"></span>
+                                Запомнить меня
+                            </label>
+                            <a href="#" class="forgot-link">Забыли пароль?</a>
+                        </div>
+                        
+                        <button type="submit" class="submit-btn" id="login-submit">
+                            <span class="btn-text">Войти</span>
+                            <span class="btn-loader" style="display: none;">
+                                <span class="spinner"></span>
+                            </span>
+                        </button>
+                    </form>
+                    
+                    <div class="auth-divider">
+                        <span>Нет аккаунта?</span>
+                    </div>
+                    
+                    <button class="switch-btn" data-switch-to="register">
+                        Создать аккаунт
+                    </button>
+                </div>
+                
+                <!-- Форма регистрации -->
+                <div id="register-panel" class="auth-panel" role="tabpanel" aria-labelledby="tab-register">
+                    <h2 class="panel-title">Создайте аккаунт</h2>
+                    <p class="panel-subtitle">Присоединяйтесь к сообществу</p>
+                    
+                    <form id="register-form" action="/registration" method="POST" novalidate>
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() if csrf_token else '' }}">
+                        
+                        <div class="form-group">
+                            <label for="register-username">Логин</label>
+                            <div class="input-wrapper">
+                                <span class="input-icon">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                        <circle cx="12" cy="7" r="4"/>
+                                    </svg>
+                                </span>
+                                <input type="text" 
+                                       id="register-username" 
+                                       name="login" 
+                                       placeholder="Придумайте логин" 
+                                       required 
+                                       minlength="3" 
+                                       maxlength="16"
+                                       autocomplete="off"
+                                       pattern="[A-Za-z0-9_]+"
+                                       title="Только буквы, цифры и underscore">
+                            </div>
+                            <span class="form-hint" id="register-username-hint">От 3 до 16 символов (буквы, цифры, _)</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="register-password">Пароль</label>
+                            <div class="input-wrapper">
+                                <span class="input-icon">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                    </svg>
+                                </span>
+                                <input type="password" 
+                                       id="register-password" 
+                                       name="password" 
+                                       placeholder="Придумайте пароль" 
+                                       required 
+                                       minlength="6"
+                                       autocomplete="new-password">
+                                <button type="button" class="toggle-password" aria-label="Показать пароль">
+                                    <img src="/static/img/eye.png" alt="Показать пароль" class="eye-icon">
+                                </button>
+                            </div>
+                            <span class="form-hint" id="register-password-hint">Минимум 6 символов</span>
+                            <div class="password-strength" id="password-strength">
+                                <div class="bar" id="strength-1"></div>
+                                <div class="bar" id="strength-2"></div>
+                                <div class="bar" id="strength-3"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="register-confirm">Подтверждение пароля</label>
+                            <div class="input-wrapper" id="confirm-wrapper">
+                                <span class="input-icon">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                        <polyline points="22 4 12 14.01 9 11.01"/>
+                                    </svg>
+                                </span>
+                                <input type="password" 
+                                       id="register-confirm" 
+                                       name="confirm_password" 
+                                       placeholder="Повторите пароль" 
+                                       required 
+                                       minlength="6"
+                                       autocomplete="new-password">
+                            </div>
+                            <span class="form-hint" id="confirm-hint">Повторите пароль для подтверждения</span>
+                        </div>
+                        
+                        <div class="form-options">
+                            <label class="checkbox-label terms-checkbox">
+                                <input type="checkbox" id="terms-check" required>
+                                <span class="checkmark"></span>
+                                Я принимаю <a href="#" class="terms-link">условия использования</a>
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="submit-btn" id="register-submit">
+                            <span class="btn-text">Зарегистрироваться</span>
+                            <span class="btn-loader" style="display: none;">
+                                <span class="spinner"></span>
+                            </span>
+                        </button>
+                    </form>
+                    
+                    <div class="auth-divider">
+                        <span>Уже есть аккаунт?</span>
+                    </div>
+                    
+                    <button class="switch-btn" data-switch-to="login">
+                        Войти
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Футер -->
+            <div class="auth-footer">
+                <p>© 2026 Chars · <a href="#">Политика конфиденциальности</a></p>
+                <p class="version">Версия 0.0.2</p>
+            </div>
         </div>
     </div>
     
-    <script>
-        const tabs = document.querySelectorAll('.tab');
-        const forms = document.querySelectorAll('.form');
-        
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                const tabName = tab.dataset.tab;
-                
-                tabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                
-                forms.forEach(form => form.classList.remove('active'));
-                document.getElementById(`${tabName}-form`).classList.add('active');
-            });
-        });
-    </script>
+    <script src="/static/js/auth.js"></script>
 </body>
 </html>
