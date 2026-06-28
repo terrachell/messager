@@ -53,22 +53,32 @@ def reg():
     if not username or not password:
         return redirect('/')
     
+    # Проверяем, существует ли пользователь
+    cursor = mysql.connection.cursor()
+    cursor.execute('SELECT id FROM users WHERE username = %s', (username,))
+    existing_user = cursor.fetchone()
+    
+    if existing_user:
+        cursor.close()
+        # Пользователь уже существует
+        # Можно вернуть ошибку или перенаправить с сообщением
+        print(f"Пользователь {username} уже существует")
+        return redirect('/?error=user_exists')
+    
     # Хешируем пароль
     hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
     
-    cursor = mysql.connection.cursor()
     try:
         cursor.execute('INSERT INTO users (username, password, chats) VALUES (%s, %s, 1)', 
                       (username, hashed.decode('utf-8')))
         mysql.connection.commit()
         session['user'] = username
+        cursor.close()
+        return redirect('/main_page')
     except Exception as e:
         print(f"Ошибка регистрации: {e}")
-        return redirect('/')
-    finally:
         cursor.close()
-    
-    return redirect('/main_page')
+        return redirect('/')
 
 @app.route('/auth', methods=['POST'])
 def auth():
@@ -178,10 +188,11 @@ def create_private_chat():
     other_id = other_user['id']
     
     # Сортируем ID для избежания дублирования
-    id1, id2 = sorted([user_id, other_id])
+    id1, id2 = sorted([str(user_id), str(other_id)])
+    user0_id = other_user['username']
     
     # Проверяем, есть ли уже чат
-    cursor.execute('SELECT id, hash FROM private_room WHERE user0 = %s AND user1 = %s', (id1, id2))
+    cursor.execute('SELECT id, hash FROM private_room WHERE user0 = %s AND user1 = %s', (user0_id, id2))
     existing = cursor.fetchone()
     
     if existing:
